@@ -1,0 +1,75 @@
+#include <iostream>
+#include <string>
+#include <cstdio>
+#include <cstring>
+#define N 1000001
+using std::string;
+using std::cout;
+char a[N][27];
+bool flag=false;
+int trie[N][27],num[N],siz=1;
+inline void ins(int Num,char *a)
+{
+    int p=1;
+    for(char *q=a;*q;++q)
+    {
+        int id=*q-'a';
+        if(!trie[p][id]) trie[p][id]=++siz;
+        p=trie[p][id];
+    }
+    num[p]=Num;
+}
+inline int query(string b)
+{
+    int p=1,L=b.length();
+    for(int i=0;i<L;++i)
+    {
+        int id=b[i]-'a';
+        p=trie[p][id];
+        if(!p) return 0; 
+    }
+    return num[p];
+}
+int main()
+{
+    char opt[15];
+    scanf("%s",&opt);
+    if(opt[0]=='S'&&opt[1]=='T'&&opt[2]=='A'&&opt[3]=='R'&&opt[4]=='T')
+    { 
+        char b[15];
+        for(int i=1;;)
+        {
+            scanf("%s",a[i]);
+            if(a[i][0]=='E'&&a[i][1]=='N'&&a[i][2]=='D'&&strlen(a[i])==3) break;
+            i++;
+            scanf("%s",&b);
+            ins(i-1,b);
+        }
+    }
+    scanf("%s",&opt);
+    if(opt[0]=='S'&&opt[1]=='T'&&opt[2]=='A'&&opt[3]=='R'&&opt[4]=='T')
+    {
+        char ch=getchar();
+        string now;now.clear();
+        for(;;)
+        {
+            ch=getchar();
+            for(;;ch=getchar())
+            {
+                if(ch>='a'&&ch<='z'||ch>='A'&&ch<='Z') now+=ch;
+                else if(ch<'a'||ch>'z')
+                {
+                    int k=query(now);
+                    if(!k) cout<<now;
+                    else printf("%s",a[k]);
+                    printf("%c",ch);
+                    now.clear();
+                }
+                if(now=="END") {flag=1;break;}
+            }
+            if(flag) break;
+            printf("\n");
+        }
+    }
+    return 0;
+}
