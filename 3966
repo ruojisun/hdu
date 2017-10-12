@@ -1,0 +1,150 @@
+#include <cstring>
+#include <cstdio>
+#define N 50005
+struct Segment
+{
+    int l,r,sum,flag;
+}tr[N*4];
+int n,m,p,tdis[N],belong[N],top[N],siz[N],dad[N],dep[N],next[N*2],to[N*2],head[N],cnt,dfn[N],tim;
+inline void init()
+{
+    cnt=tim=0;
+    memset(to,0,sizeof(to));
+    memset(tr,0,sizeof(tr));
+    memset(top,0,sizeof(top));
+    memset(siz,0,sizeof(siz));
+    memset(dfn,0,sizeof(dfn));
+    memset(dep,0,sizeof(dep));
+    memset(next,0,sizeof(next));
+    memset(head,0,sizeof(head));
+    memset(tdis,0,sizeof(tdis));
+    memset(belong,0,sizeof(belong));
+}
+inline void ins(int u,int v)
+{
+    next[++cnt]=head[u];to[cnt]=v;head[u]=cnt;
+    next[++cnt]=head[v];to[cnt]=u;head[v]=cnt;
+}
+void dfs1(int x)
+{
+    dep[x]=dep[dad[x]]+1;
+    siz[x]=1;
+    for(int i=head[x];i;i=next[i])
+    {
+        if(dad[x]!=to[i])
+        {
+            dad[to[i]]=x;
+            dfs1(to[i]);
+            siz[x]+=siz[to[i]];
+        }
+    }
+}
+void dfs2(int x)
+{
+    int pos=0;
+    if(!top[x]) top[x]=x;
+    dfn[++tim]=x;belong[x]=tim;
+    for(int i=head[x];i;i=next[i])
+        if(dad[x]!=to[i]&&siz[pos]<siz[to[i]]) pos=to[i];
+    if(pos) top[pos]=top[x],dfs2(pos);
+    for(int i=head[x];i;i=next[i])
+        if(dad[x]!=to[i]&&to[i]!=pos) dfs2(to[i]);
+}
+inline void pushup(int k) {tr[k].sum=tr[k<<1].sum+tr[k<<1|1].sum;}
+void build(int k,int l,int r)
+{
+    tr[k].l=l;tr[k].r=r;
+    if(l==r)
+    {
+        tr[k].sum=tdis[dfn[l]];
+        return;
+    }
+    int mid=(l+r)>>1;
+    build(k<<1,l,mid);
+    build(k<<1|1,mid+1,r);
+    pushup(k);
+}
+inline void swap(int &m,int &n)
+{
+    int tmp=n;
+    n=m;
+    m=tmp;
+}
+inline void pushdown(int k)
+{
+    tr[k<<1].flag+=tr[k].flag;
+    tr[k<<1|1].flag+=tr[k].flag;
+    tr[k<<1].sum+=tr[k].flag*(tr[k<<1].r-tr[k<<1].l+1);
+    tr[k<<1|1].sum+=tr[k].flag*(tr[k<<1|1].r-tr[k<<1|1].l+1);
+    tr[k].flag=0;
+}
+int query(int k,int t)
+{
+    if(tr[k].l==tr[k].r) return tr[k].sum;
+    if(tr[k].flag) pushdown(k);
+    int mid=(tr[k].l+tr[k].r)>>1;
+    if(t<=mid) return query(k<<1,t);
+    else return query(k<<1|1,t);
+}
+void Tmodify(int k,int l,int r,int v)
+{
+    if(tr[k].l==l&&tr[k].r==r)
+    {
+        tr[k].sum+=v*(r-l+1);
+        tr[k].flag+=v;
+        return;
+    }
+    if(tr[k].flag) pushdown(k);
+    int mid=(tr[k].l+tr[k].r)>>1;
+    if(l>mid) Tmodify(k<<1|1,l,r,v);
+    else if(r<=mid) Tmodify(k<<1,l,r,v);
+    else Tmodify(k<<1,l,mid,v),Tmodify(k<<1|1,mid+1,r,v);
+    pushup(k);
+}
+inline void Cmodify(int x,int y,int v)
+{
+    for(;top[x]!=top[y];x=dad[top[x]])
+    {
+        if(dep[top[x]]<dep[top[y]]) swap(x,y);
+        Tmodify(1,belong[top[x]],belong[x],v);
+    }
+    if(dep[x]<dep[y]) swap(x,y);
+    Tmodify(1,belong[y],belong[x],v);
+}
+int main()
+{
+    for(;scanf("%d%d%d",&n,&m,&p)!=EOF;)
+    {
+        init();
+        for(int i=1;i<=n;++i) scanf("%d",&tdis[i]);
+        for(int x,y;m--;)
+        {
+            scanf("%d%d",&x,&y);
+            ins(x,y);
+        }
+        dfs1(1);
+        dfs2(1);
+        char opt[5];
+        build(1,1,n);
+        for(int x,y,z;p--;)
+        {
+            scanf("%s",opt);
+            if(opt[0]=='I')
+            {
+                scanf("%d%d%d",&x,&y,&z);
+                Cmodify(x,y,z);
+            }
+            else if(opt[0]=='D')
+            {
+                scanf("%d%d%d",&x,&y,&z);
+                Cmodify(x,y,-z);
+            }
+            else
+            {
+                scanf("%d",&x);
+                printf("%d\n",query(1,belong[x]));
+            } 
+        }
+    }
+    return 0;
+}
