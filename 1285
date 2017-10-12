@@ -1,0 +1,55 @@
+#include <algorithm>
+#include <cstring>
+#include <cstdio>
+#include <queue>
+#define N 505
+using namespace std;
+priority_queue<int,vector<int>,greater<int> >q;
+struct Edge{
+    int next,to;
+}edge[N*N];
+int ans[N],r=0,head[N],cnt,rd[N],n,m;
+void tppx()
+{
+    for(int i=1;i<=n;++i) if(!rd[i]) q.push(i) ;
+    for(int now;!q.empty();)
+    {
+        now=q.top();q.pop();
+        ans[++r]=now;
+        for(int i=head[now];i;i=edge[i].next)
+        {
+            int v=edge[i].to;
+            if(rd[v])
+            {
+                rd[v]--;
+                if(!rd[v]) q.push(v) ; 
+            }
+        }
+    }
+}
+inline void ins(int u,int v)
+{
+    edge[++cnt].next=head[u];
+    edge[cnt].to=v;
+    head[u]=cnt;
+}
+int main()
+{
+    for(;scanf("%d%d",&n,&m)!=EOF;)
+    {
+        memset(edge,0,sizeof(edge));
+        memset(head,0,sizeof(head));
+        memset(rd,0,sizeof(rd));
+        r=cnt=0;
+        for(int a,b;m--;)
+        {
+            scanf("%d%d",&a,&b);
+            ins(a,b);
+            rd[b]++;
+        }
+        tppx();
+        for(int i=1;i<r;++i) printf("%d ",ans[i]);
+        printf("%d\n",ans[r]);
+    }
+    return 0;
+}
