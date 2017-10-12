@@ -1,0 +1,105 @@
+#include <cstring>
+#include <cstdio>
+#define N 500010
+struct node
+{
+    int cnt;
+    node * next[27],* fail;
+}*Q[N],*root;
+int T;
+node * create()
+{
+    node * rt=new node;
+    rt->cnt=0;
+    rt->fail=0;
+    memset(rt->next,0,sizeof(rt->next));
+    return rt;
+}
+void ins(char *a)
+{
+    node * p=root;
+    char *q=a;
+    while(*q)
+    {
+        int id=*q-'a'+1;
+        if(p->next[id]==NULL) p->next[id]=create();
+        p=p->next[id];
+        q++;
+    }
+    p->cnt++;
+}
+void build()
+{
+    int head=0,tail=1;
+    Q[tail]=root;
+    while(head!=tail)
+    {
+        node * now=Q[++head];
+        node * tmp=NULL;
+        for(int i=1;i<=26;i++)
+        {
+            if(now->next[i]!=NULL)
+            {
+                if(now==root) now->next[i]->fail=root;
+                else
+                {
+                    tmp=now->fail;
+                    while(tmp!=NULL)
+                    {
+                        if(tmp->next[i]!=NULL)
+                        {
+                            now->next[i]->fail=tmp->next[i];
+                            break;
+                        }
+                        tmp=tmp->fail;
+                    }
+                    if(tmp==NULL)
+                        now->next[i]->fail=root;
+                }
+                Q[++tail]=now->next[i];
+            }
+        }
+    }
+}
+int query(char *a)
+{
+    int ret=0;
+    char *q=a;
+    node *p=root;
+    while(*q)
+    {
+        int id=*q-'a'+1;
+        while(p->next[id]==NULL&&p!=root) p=p->fail;
+        p=p->next[id];
+        if(p==NULL) p=root;
+        node *tmp=p;
+        while(tmp!=root&&tmp->cnt!=-1)
+        {
+            ret+=tmp->cnt;
+            tmp->cnt=-1;
+            tmp=tmp->fail;
+        }
+        ++q;
+    }
+    return ret;
+}
+int main()
+{
+    scanf("%d",&T);
+    for(int n;T--;)
+    {
+        root=create();
+        char str[55];
+        scanf("%d",&n);
+        for(;n--;)
+        {
+            scanf("%s",str);
+            ins(str);
+        }
+        build();
+        char key[1000005];
+        scanf("%s",key);
+        printf("%d\n",query(key));
+    }
+    return 0;
+}
