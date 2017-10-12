@@ -1,0 +1,90 @@
+#include <cstring>
+#include <cstdio>
+#include <queue>
+using namespace std;
+int size=1,num[100001],ans[100001],trie[100001][30],fail[100001];
+void ins(int k,char *a)
+{
+    int p=1;
+    for(char *q=a;*q;++q)
+    {
+        int id=*q-'A';
+        if(trie[p][id]==0) trie[p][id]=++size;
+        p=trie[p][id];
+    }
+    num[p]=k;
+}
+void build()
+{
+    for(int i=0;i<=25;i++) trie[0][i]=1;
+    queue<int>q;
+    q.push(1);
+    for(;!q.empty();)
+    {
+        int p=q.front();q.pop();
+        for(int i=0;i<=25;i++)
+        {
+            if(trie[p][i])
+            {
+                if(p==1) fail[trie[p][i]]=1;
+                else
+                {
+                    int now=fail[p];
+                    for(;now;now=fail[now])
+                    {
+                        if(trie[now][i])
+                        {
+                            fail[trie[p][i]]=trie[now][i];
+                            break;
+                        }
+                    }
+                    if(!now) fail[trie[p][i]]=1;
+                }
+                q.push(trie[p][i]); 
+            }
+        }
+    }
+}
+void query(char *a)
+{
+    int p=1;
+    for(char *q=a;*q;q++)
+    {
+        if('A'>*q||*q>'Z') {p=1;continue;}
+         int id=*q-'A';
+        for(;!trie[p][id];) p=fail[p];
+        p=trie[p][id];
+        int now=p;
+        for(;now;now=fail[now])
+            if(num[now]) ans[num[now]]++;
+    }
+}
+void init()
+{
+    size=1;
+    memset(fail,0,sizeof(fail));
+    memset(trie,0,sizeof(trie));
+    memset(num,0,sizeof(num));
+    memset(ans,0,sizeof(ans));
+}
+int main()
+{
+    int n;
+    while(scanf("%d",&n)!=EOF)
+    {
+        init();
+        char word[1005][55];
+        for(int i=1;i<=n;i++)
+        {
+            scanf("%s",word[i]);
+            ins(i,word[i]);
+        }
+        build();
+        char code[2000005];
+        scanf("%s",code);
+        query(code);
+        for(int i=1;i<=n;i++)
+        if(ans[i]) printf("%s: %d\n",word[i],ans[i]);
+    }
+    return 0;
+}
