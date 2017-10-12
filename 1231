@@ -1,0 +1,30 @@
+#include <cstdio>
+int max(int a,int b)
+{
+    return a>b?a:b;
+} 
+int n,a[10005];
+int main()
+{
+    while(scanf("%d",&n))
+    {
+        if(n==0) break;
+        bool flag=false;
+        int dp=0,ans=0,ds,js,d;
+        for(int i=1;i<=n;i++) scanf("%d",&a[i]);
+        dp=a[1];ds=1;ans=dp;js=1;
+        for(int i=2;i<=n;i++)
+        {
+            if(dp<0)
+            {
+                d=i;
+                dp=a[i];
+            }
+            else dp+=a[i];
+            if(dp>ans) ds=d,js=i,ans=dp;
+        }
+        if(ans>=0) printf("%d %d %d\n",ans,a[ds],a[js]);
+        else printf("0 %d %d\n",a[1],a[n]);
+    }
+    return 0;
+}
