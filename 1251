@@ -1,0 +1,63 @@
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+
+using namespace std;
+struct trie_node
+{
+    int count;
+    trie_node * next[26];
+    bool excit;
+}*root;
+trie_node * create_cn()
+{
+    trie_node * tp=new(trie_node);
+    tp->count=0;
+    memset(tp->next,0,sizeof(tp->next));
+    tp->excit=0;
+    return tp;
+}
+inline void insert(char * word)
+{
+    trie_node * p=root;
+    char *q=word;
+    while(*q)
+    {
+        int id=*q-'a';
+        if(p->next[id]==NULL)
+            p->next[id]=create_cn();
+        p=p->next[id];
+        ++q;
+        p->count++;
+    }
+    p->excit=1;
+}
+int search(char *word)
+{
+    trie_node *p=root;
+    char *q=word;
+    while(*q)
+    {
+        int id=*q-'a';
+        p=p->next[id];
+        q++;
+        if(p==NULL) return 0;
+    }
+    return p->count;
+}
+int main()
+{
+    root=create_cn();
+    char c[12];
+    int bz=0;
+    while(gets(c))
+    {
+        if(bz) cout<<search(c)<<endl;
+        else
+        {
+            if(strlen(c)!=0) insert(c);
+            else bz=1;
+        }
+    }
+    return 0;
+}
