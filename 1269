@@ -1,0 +1,60 @@
+#include <cstring>
+#include <cstdio>
+#include <vector>
+#define N 100500
+
+using std::vector;
+int min(int a,int b) {return a>b?b:a;}
+vector<int>edge[N];
+bool instack[N];
+int Map[1005][1005],n,m,dfn[N],stack[N],low[N],tim,top,sumcol;
+inline void init()
+{
+    sumcol=top=tim=0;
+    memset(dfn,0,sizeof(dfn));
+    memset(low,0,sizeof(low));
+}
+void tarjan(int x)
+{
+    stack[++top]=x;
+    instack[x]=true;
+    dfn[x]=low[x]=++tim;
+    for(int i=0;i<edge[x].size();++i)
+    {
+        int v=edge[x][i];
+        if(instack[v]) low[x]=min(low[x],dfn[v]);
+        else if(!dfn[v])
+        {
+            tarjan(v);
+            low[x]=min(low[x],low[v]);
+        }
+    }
+    if(low[x]==dfn[x])
+    {
+        sumcol++;
+        int k;
+        do
+        {
+            k=stack[top--];
+            instack[k]=false;
+        }while(k!=x);
+    }
+}
+int main()
+{
+    for(;scanf("%d%d",&n,&m)&&n;)
+    {
+        for(int x,y;m--;)
+        {
+            scanf("%d%d",&x,&y);
+            edge[x].push_back(y);
+        }
+        for(int i=1;i<=n;++i)
+            if(!dfn[i]) tarjan(i);
+        if(sumcol==1) printf("Yes\n");
+        else printf("No\n");
+        for(int i=1;i<=n;++i) edge[i].clear();
+        init();
+    }
+    return 0;
+}
