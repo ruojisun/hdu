@@ -1,0 +1,40 @@
+#include <ctype.h>
+#include <cstdio>
+void read(int &x)
+{
+    x=0;bool f=0;register char ch=getchar();
+    for(;!isdigit(ch);ch=getchar()) if(ch=='-') f=1;
+    for(; isdigit(ch);ch=getchar()) x=(x<<3)+(x<<1)+ch-'0';
+    x=f?(~x)+1:x;
+}
+int k,a=1;
+int getphi(int n)
+{
+    int ans=n;
+    if(n%2==0)
+    {
+        while(n%2==0) n/=2;
+        ans/=2;
+    }
+    for(int i=3;i*i<=n;i+=2)
+    {
+        if(n%i==0)
+        {
+            while(n%i==0) n/=i;
+            ans=ans/i*(i-1);
+        }
+    }
+    if(n>1) ans=ans/n*(n-1);
+    return ans;
+}
+int main()
+{
+    for(;a;)
+    {
+        read(k);
+        if(!k) break;
+        int ans=k-getphi(k)-1;
+        printf("%d\n",ans);
+    }
+    return 0;
+}
