@@ -1,0 +1,40 @@
+#include <cstring>
+#include <cstdio>
+#define N 1000005
+
+int t,n,m,a[N],b[N],Next[N];
+void Get_next()
+{
+    int i=1,j=0;
+    Next[i]=j;
+    for(;i<=m;)
+    {
+        if(j==0||b[i]==b[j]) j++,i++,Next[i]=j;
+        else j=Next[j];
+    }
+}
+void kmp()
+{
+    Get_next();
+    int i=1,j=1;
+    for(;i<=n&&j<=m;)
+    {
+        if(j==0||b[j]==a[i]) i++,j++;
+        else j=Next[j];
+        if(j==m+1) {printf("%d\n",i-j+1);return;}
+    }
+    printf("-1\n");
+}
+int main()
+{
+    scanf("%d",&t);
+    for(;t--;)
+    {
+        memset(Next,0,sizeof(Next));
+        scanf("%d%d",&n,&m);
+        for(int i=1;i<=n;i++) scanf("%d",&a[i]);
+        for(int i=1;i<=m;i++) scanf("%d",&b[i]);
+        kmp();
+    }
+    return 0;
+}
