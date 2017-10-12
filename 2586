@@ -1,0 +1,90 @@
+#include <cstring>
+#include <ctype.h>
+#include <cstdio>
+#define N 60000
+
+struct Edge
+{
+    int to,dis;
+    Edge * next; 
+}edge[N<<1],*head[N];
+int T,n,m,cnt,dad[N][25],dep[N],dis[N];
+inline void Read(int &x)
+{
+    register char ch=getchar();
+    for(x=0;!isdigit(ch);ch=getchar());
+    for(;isdigit(ch);x=x*10+ch-'0',ch=getchar());
+}
+inline void init()
+{
+    cnt=0;
+    memset(head,0,sizeof(head));
+    memset(dad,0,sizeof(dad));
+    memset(dep,0,sizeof(dep));
+}
+inline void ins(int u,int v,int w)
+{
+    edge[++cnt].next=head[u];
+    edge[cnt].to=v;
+    edge[cnt].dis=w;
+    head[u]=edge+cnt;
+}
+void dfs(int x)
+{
+    dep[x]=dep[dad[x][0]]+1;
+    for(int i=0;dad[x][i];++i)
+    dad[x][i+1]=dad[dad[x][i]][i];
+    for(Edge * u=head[x];u;u=u->next)
+    {
+        int v=u->to;
+        if(dad[x][0]!=v)
+        {
+            dad[v][0]=x;
+            dis[v]=u->dis+dis[x];
+            dfs(v);
+        }
+    }
+}
+void swap(int &m,int &n)
+{
+    int tmp=n;
+    n=m;
+    m=tmp;
+}
+int lca(int x,int y)
+{
+    if(dep[x]>dep[y]) swap(x,y);
+    for(int i=20;i>=0;--i)
+    if(dep[dad[y][i]]>=dep[x]) y=dad[y][i];
+    if(x==y) return x;
+    for(int i=20;i>=0;--i)
+    if(dad[x][i]!=dad[y][i])
+    x=dad[x][i],y=dad[y][i];
+    return dad[x][0];
+}
+int main()
+{
+    Read(T);
+    for(;T--;)
+    {
+        init();
+        Read(n);Read(m);
+        for(int x,y,z,i=1;i<n;++i)
+        {
+            Read(x);
+            Read(y);
+            Read(z);
+            ins(x,y,z);
+            ins(y,x,z);
+        }
+        dfs(1);
+        for(int x,y;m--;)
+        {
+            Read(x);
+            Read(y);
+            int z=lca(x,y);
+            printf("%d\n",dis[x]+dis[y]-2*dis[z]);
+        }
+    }
+    return 0;
+}
