@@ -1,0 +1,35 @@
+#include <cstring>
+#include <cstdio>
+#define Mod 10007
+#define N 200005
+int L,T,nextt[N],sum,f[N];
+char str[N];
+void get_next()
+{
+    int i=0,j=-1,len=strlen(str);
+    nextt[i]=j;
+    for(;i<len;)
+    {
+        if(j==-1||str[i]==str[j]) i++,j++,nextt[i]=j;
+        else j=nextt[j];
+    }
+}
+int main()
+{
+    scanf("%d",&T);
+    for(;T--;)
+    {
+        memset(f,0,sizeof(f));sum=0;
+        scanf("%d",&L);
+        scanf("%s",str);
+        get_next();
+        f[0]=0;
+        for(int i=1;i<=L;++i)
+        {
+            f[i]=f[nextt[i]]+1;
+            sum=(sum+f[i])%Mod;
+        }
+        printf("%d\n",sum);
+    }
+    return 0;
+}
