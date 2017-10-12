@@ -1,0 +1,71 @@
+#include <cstdio>
+#define Max 100000
+struct NodeTypeTree
+{
+    int l,r,dis,lazy;
+};
+struct NodeTypeTree tr[Max<<2];
+int T,N,Q;
+void up(int k)
+{
+    tr[k].dis=tr[k<<1].dis+tr[k<<1|1].dis;
+}
+void build(int k,int l,int r)
+{
+    tr[k].l=l;tr[k].r=r;
+    if(l==r)
+    {
+        tr[k].dis=1;
+        tr[k].lazy=1;
+        return;
+    }
+    tr[k].lazy=0;
+    int mid=(l+r)>>1;
+    build(k<<1,l,mid);
+    build(k<<1|1,mid+1,r);
+    up(k);
+}
+void pushdown(int k)
+{
+    if(tr[k].l==tr[k].r) return;
+    tr[k<<1].lazy=tr[k].lazy;
+    tr[k<<1|1].lazy=tr[k].lazy;
+    tr[k<<1].dis=tr[k].lazy*(tr[k<<1].r-tr[k<<1].l+1);
+    tr[k<<1|1].dis=tr[k].lazy*(tr[k<<1|1].r-tr[k<<1|1].l+1);
+    tr[k].lazy=0;
+}
+void section_change(int k,int l,int r,int v)
+{
+    if(tr[k].l==l&&tr[k].r==r)
+    {
+        tr[k].dis=v*(r-l+1);
+        tr[k].lazy=v;
+        return;
+    }
+    if(tr[k].lazy) pushdown(k);
+    int mid=(tr[k].l+tr[k].r)>>1;
+    if(l>mid) section_change(k<<1|1,l,r,v);
+    else if(r<=mid) section_change(k<<1,l,r,v);
+    else
+    {
+        section_change(k<<1,l,mid,v);
+        section_change(k<<1|1,mid+1,r,v);
+    }
+    up(k);
+}
+int main()
+{
+    scanf("%d",&T);
+    for(int i=1;i<=T;i++)
+    {
+        scanf("%d%d",&N,&Q);
+        build(1,1,N);
+        for(int x,y,z;Q--;)
+        {
+            scanf("%d%d%d",&x,&y,&z);
+            section_change(1,x,y,z);
+        }
+        printf("Case %d: The total value of the hook is %d.\n",i,tr[1].dis);
+    }
+    return 0;
+}
