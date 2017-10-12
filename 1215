@@ -1,0 +1,20 @@
+#include <cstdio>
+int num,n,ans;
+int main()
+{
+    scanf("%d",&n);
+    for(int x;n--;)
+    {
+        ans=1;scanf("%d",&x);
+        for(int i=2;i*i<=x;i++)
+        {
+            if(x%i==0)
+            {
+                ans+=i;
+                if(x/i!=i) ans+=x/i;
+            }
+        }
+        printf("%d\n",ans);
+    }
+    return 0;
+}
