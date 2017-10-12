@@ -1,0 +1,90 @@
+#include <algorithm>
+#include <ctype.h>
+#include <cstring>
+#include <cstdio>
+#define N 100005
+#define INF 0x7fffffff
+
+using namespace std;
+struct graph
+{
+    graph * next;
+    int to,dis;
+}Graph[N<<2],*head[N];
+inline void Read(int &x)
+{
+    register char ch=getchar();
+    for(x=0;!isdigit(ch);ch=getchar());
+    for(;isdigit(ch);x=x*10+ch-'0',ch=getchar());
+}
+bool instack[N];
+int cost[N],cnt,n,m,low[N],dfn[N],stack[N],top,sumcol,col[N],tim;
+int min(int a,int b) {return a>b?b:a;}
+void tarjan(int now)
+{
+    dfn[now]=low[now]=++tim;
+    instack[now]=true;
+    stack[++top]=now;
+    for(graph * u=head[now];u;u=u->next)
+    {
+        int v=u->to;
+        if(!dfn[v]) tarjan(v),low[now]=min(low[now],low[v]);
+        else if(instack[v]) low[now]=min(low[now],dfn[v]);
+    }
+    if(dfn[now]==low[now])
+    {
+        int k;
+        sumcol++;
+        do
+        {
+            k=stack[top--];
+            instack[k]=false;
+            col[k]=sumcol;
+        }while(k!=now);
+    }
+}
+inline void init()
+{
+    cnt=sumcol=top=tim=0;
+    memset(dfn,0,sizeof(dfn));
+    memset(low,0,sizeof(low));
+    memset(col,0,sizeof(col));
+    memset(head,0,sizeof(head));
+    memset(Graph,0,sizeof(Graph));
+}
+inline void ins(int u,int v,int w)
+{
+    Graph[++cnt].next=head[u];
+    Graph[cnt].to=v;
+    Graph[cnt].dis=w;
+    head[u]=Graph+cnt;
+}
+int main()
+{
+    for(;scanf("%d%d",&n,&m)!=EOF;)
+    {
+        for(int x,y,z;m--;)
+        {
+            scanf("%d%d%d",&x,&y,&z);
+            ins(x,y,z); 
+        }
+        for(int i=0;i<n;++i)
+        {
+            if(!dfn[i]) tarjan(i);
+            cost[i]=INF;cost[i+1]=INF;
+        }
+        for(int i=0;i<n;++i)
+        {
+            for(graph * u=head[i];u;u=u->next)
+            {
+                int v=u->to;
+                if(col[i]!=col[v]) cost[col[v]]=min(cost[col[v]],u->dis);
+            }
+        }
+        int ans=0;
+        for(int i=1;i<=sumcol;++i) if(cost[i]!=INF) ans+=cost[i];
+        printf("%d\n",ans);
+        init();
+    }
+    return 0;
+}
