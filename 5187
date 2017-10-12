@@ -1,0 +1,25 @@
+#include <cstdio>
+typedef long long LL;
+LL n,p;
+LL ksc(LL a,LL b,LL Mod)
+{
+    LL ret=0,base=a;
+    for(;b;b>>=1,base=(base*2)%Mod)
+     if(b&1)
+      ret=(ret+base)%Mod;
+    return ret;
+}
+LL ksm(LL a,LL b,LL Mod)
+{
+    LL r=1,base=a;
+    for(;b;b>>=1,base=ksc(base,base,Mod)%Mod)
+     if(b&1)
+      r=ksc(r,base,Mod)%Mod;
+    return r;
+}
+int main()
+{
+    for(;scanf("%I64d%I64d",&n,&p)!=EOF;)
+        printf("%I64d\n",(ksm(2,n,p)%p-2%p+p)%p);
+    return 0;
+}
