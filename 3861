@@ -1,0 +1,120 @@
+#include <cstring>
+#include <cstdio>
+#define N 100005
+
+struct Edge
+{
+    Edge *next;
+    int to;
+}*head[N],edge[N];
+struct EDge
+{
+    EDge *next;
+    int to;
+}*newhead[N],newedge[N];
+bool instack[N],vis[N];
+int cnt,T,n,m,ans,stack[N],top,low[N],dfn[N],tim,col[N],sumcol,f[N];
+inline void init()
+{
+    ans=top=tim=sumcol=cnt=0;
+    memset(f,-1,sizeof(f));
+    memset(col,0,sizeof(col));
+    memset(low,0,sizeof(low));
+    memset(dfn,0,sizeof(dfn));
+    memset(head,0,sizeof(head));
+    memset(edge,0,sizeof(edge));
+    memset(newhead,0,sizeof(newhead));
+    memset(newedge,0,sizeof(newedge));
+}
+struct node
+{
+    int x,y;
+}e[N<<10];
+inline int min(int a,int b) {return a>b?b:a;}
+void tarjan(int x)
+{
+    low[x]=dfn[x]=++tim;
+    instack[x]=1;
+    stack[++top]=x;
+    for(Edge * u=head[x];u;u=u->next)
+    {
+        int v=u->to;
+        if(instack[v]) low[x]=min(low[x],dfn[v]);
+        else if(!dfn[v])
+        {
+            tarjan(v);
+            low[x]=min(low[x],low[v]);
+        }
+    }
+    if(low[x]==dfn[x])
+    {
+        int k;
+        sumcol++;
+        do
+        {
+            k=stack[top--];
+            instack[k]=false;
+            col[k]=sumcol;
+        }while(k!=x);
+    }
+}
+bool dfs(int x)
+{
+    for(EDge * u=newhead[x];u;u=u->next)
+    {
+        int v=u->to;
+        if(!vis[v])
+        {
+            vis[v]=1;
+            if(f[v]==-1||dfs(f[v]))
+            {
+                f[v]=x;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+inline void ins(int u,int v)
+{
+    edge[++cnt].next=head[u];
+    edge[cnt].to=v;
+    head[u]=edge+cnt;
+}
+inline void insnew(int u,int v)
+{
+    newedge[++cnt].next=newhead[u];
+    newedge[cnt].to=v;
+    newhead[u]=newedge+cnt;
+}
+int Main()
+{
+    scanf("%d",&T);
+    for(;T--;)
+    {
+        scanf("%d%d",&n,&m);
+        init();
+        for(int i=1;i<=m;++i)
+        {
+            scanf("%d%d",&e[i].x,&e[i].y);
+            ins(e[i].x,e[i].y);
+        }
+        for(int i=1;i<=n;++i)
+         if(!dfn[i]) tarjan(i);
+        cnt=0;
+        for(int i=1;i<=m;++i)
+        {
+            int cx=col[e[i].x],cy=col[e[i].y];
+            if(cx!=cy) insnew(cx,cy);
+        }
+        for(int i=1;i<=sumcol;++i)
+        {
+            memset(vis,0,sizeof(vis));
+            if(dfs(i)) ans++;
+        }
+        printf("%d\n",sumcol-ans);
+    }
+    return 0;
+}
+int sb=Main();
+int main(int argc,char *argv[]) {;}
