@@ -1,0 +1,60 @@
+#include <algorithm>
+#include <cstdio>
+#define N 5500
+using namespace std;
+struct node
+{
+    int mid,l,r,dis;
+    node *left,*right;
+    node()
+    {
+        left=right=NULL;
+        mid=0;dis=0;
+    }
+}*root;
+int data[N],a[N],n;
+void build(node *&k,int l,int r)
+{
+    k=new node;
+    k->l=l;k->r=r;
+    k->mid=(l+r)>>1;
+    if(l==r) {k->dis=0;return ;}
+    build(k->left,l,k->mid);
+    build(k->right,k->mid+1,r);
+}
+void change(node *&k,int t)
+{
+    if(k->l==k->r) {k->dis++;return;}
+    if(k->mid>=t) change(k->left,t);
+    else change(k->right,t);
+    k->dis=k->left->dis+k->right->dis;
+}
+int query(node *&k,int l,int r)
+{
+    if(k->l==l&&k->r==r) return k->dis;
+    if(l>k->mid) return query(k->right,l,r);
+    else if(r<=k->mid) return query(k->left,l,r);
+    else return query(k->left,l,k->mid)+query(k->right,k->mid+1,r);
+}
+int main()
+{
+    for(;scanf("%d",&n)!=EOF;)
+    {
+        root=new node;
+        build(root,0,n);
+        int ans,sum=0;
+        for(int i=0;i<n;i++)
+        {
+            scanf("%d",&a[i]);
+            ans=sum+=query(root,a[i]+1,n);
+            change(root,a[i]);
+        }
+        for(int i=0;i<n;i++)
+        {
+            sum+=n-a[i]-a[i]-1;
+            ans=min(ans,sum);
+        }
+        printf("%d\n",ans);
+    }
+    return 0;
+}
